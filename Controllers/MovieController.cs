@@ -70,6 +70,36 @@ namespace AxelPrimeVideo.Controllers
                 return RedirectToAction(nameof(Index));
 
         }
+        [HttpGet]
+        public async Task<IActionResult> Upload(ImageUploadModel model)
+        {
+            if (model.ImageFile != null)
+            {
+                string uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
+
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + model.ImageFile.FileName;
+
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.ImageFile.CopyToAsync(fileStream);
+                }
+
+                ViewBag.Message = "File uploaded successfully";
+                return View();
+            }
+
+            ViewBag.Message = "Please select a file to upload";
+            return View();
+        }
+
+
 
         // GET: Movies/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
