@@ -12,4 +12,4 @@ namespace AxelPrimeVideo.Data
         }
         public DbSet<Movie> Movies { get; set; }
     }
-}
+}   

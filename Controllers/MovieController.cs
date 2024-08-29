@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using AxelPrimeVideo.Services;
 using AxelPrimeVideo.Models.ViewModels;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AxelPrimeVideo.Controllers
 {
@@ -46,6 +47,7 @@ namespace AxelPrimeVideo.Controllers
         }
 
         // GET: Movies/Create
+        [Authorize(Roles = "Vendeur")]
         public IActionResult Create()
         {
             return View();
@@ -56,47 +58,19 @@ namespace AxelPrimeVideo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AddMovieViewModel viewModel)
         {
-                var movie = new Movie
-                {
-                    Id = viewModel.Id,
-                    Title = viewModel.Title,
-                    Description = viewModel.Description,
-                    ReleaseDate = viewModel.ReleaseDate,
-
-
-                };
-
-                await _movieService.CreateMovieAsync(movie);
-                return RedirectToAction(nameof(Index));
-
-        }
-        [HttpGet]
-        public async Task<IActionResult> Upload(ImageUploadModel model)
-        {
-            if (model.ImageFile != null)
+            var movie = new Movie
             {
-                string uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
+                Id = viewModel.Id,
+                Title = viewModel.Title,
+                Description = viewModel.Description,
+                ReleaseDate = viewModel.ReleaseDate,
 
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
 
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + model.ImageFile.FileName;
+            };
 
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+            await _movieService.CreateMovieAsync(movie);
+            return RedirectToAction(nameof(Index));
 
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await model.ImageFile.CopyToAsync(fileStream);
-                }
-
-                ViewBag.Message = "File uploaded successfully";
-                return View();
-            }
-
-            ViewBag.Message = "Please select a file to upload";
-            return View();
         }
 
 
